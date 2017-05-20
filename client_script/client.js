@@ -141,7 +141,7 @@ function onKeyDown(e) {
         control.down = true;
     }else if(e.key == 'q'){
         control.left = true;
-    }else if(e.key = 'd'){
+    }else if(e.key == 'd'){
         control.right = true;
     }
 }
@@ -153,7 +153,7 @@ function onKeyUp(e) {
         control.down = false;
     }else if(e.key == 'q'){
         control.left = false;
-    }else if(e.key = 'd'){
+    }else if(e.key == 'd'){
         control.right = false;
     }
 }
