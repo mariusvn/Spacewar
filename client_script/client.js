@@ -63,7 +63,9 @@ class bullet{
 }
 
 class vessel {
+
     constructor(x, y, color, weight){
+        this.life = 100;
         this.x = x;
         this.y = y;
         this.color = color;
@@ -73,24 +75,28 @@ class vessel {
         this.container.y = y;
         this.lines = [];
         this.rotation = 0;
+
         var line0 = new PIXI.Graphics();
         line0.lineStyle(weight, color, 1);
         line0.moveTo(-15, -10);
         line0.lineTo(15, -10);
         this.lines.push(line0);
         this.container.addChild(line0);
+
         var line1 = new PIXI.Graphics();
         line1.lineStyle(weight, color, 1);
         line1.moveTo(-15, -10);
         line1.lineTo(0, 30);
         this.lines.push(line1);
         this.container.addChild(line1);
+
         var line2 = new PIXI.Graphics();
         line2.lineStyle(weight, color, 1);
         line2.moveTo(15, -10);
         line2.lineTo(0, 30);
         this.lines.push(line2);
         this.container.addChild(line2);
+
         vesselList.push(this);
         stage.addChild(this.container);
     }
@@ -104,10 +110,10 @@ class vessel {
         this.container.rotation = rotation;
         this.rotation = rotation;
     }
-
     fire(){
         var bul = new bullet(this.x, this.y, this.rotation);
     }
+
 }
 
 class player extends vessel{
@@ -115,16 +121,44 @@ class player extends vessel{
         super.update();
         var deltaX = mousePos.x - this.x;
         var deltaY = mousePos.y - this.y;
-        var angle = Math.atan((deltaX/deltaY));
+        var angle = Math.atan(deltaX/deltaY);
+        var rot = - angle;
+        if(deltaY < 0){
+            rot = rot - Math.PI;
+        }
+        this.rotate(rot);
+        playerPos.x = this.x;
+        playerPos.y = this.y;
+    }
+}
+
+class enemy extends vessel{
+    moveForward(speed){
+        this.y = this.y + speed * (Math.cos(this.rotation));
+        this.x = this.x + speed * (-Math.sin(this.rotation));
+    }
+    rotateToPlayer(){
+        var deltaX = playerPos.x - this.x;
+        var deltaY = playerPos.y - this.y;
+        var angle = Math.atan(deltaX/deltaY);
         var rot = - angle;
         if(deltaY < 0){
             rot = rot - Math.PI;
         }
         this.rotate(rot);
     }
+    constructor(x,y,color,weight){
+        super(x,y,color,weight);
+        setTimeout(function () {
+            console.log("fire !");
+            new bullet(this.x, this.y, this.rotation);
+        }, 3000);
+    }
 }
 
 var ply = new player(600, 500, 0xFFFFFF, 1);
+var ennemy = new enemy(200, 300, 0xFFFF00, 1);
+
 renderer.render(stage);
 
 document.getElementsByTagName("CANVAS")[0].onclick = function(){
@@ -179,6 +213,8 @@ function update(){
     if(control.right){
         ply.x = ply.x + 3;
     }
+    ennemy.rotateToPlayer();
+    ennemy.moveForward(1.5);
     renderer.render(stage);
     requestAnimationFrame(update);
 }
