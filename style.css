@@ -3,4 +3,21 @@ body {
     padding: 0;
     width: 100vw;
     height: 99.7vh;
+    font-family: Arial;
+}
+
+#fps {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    color: white;
+    z-index: 10;
+}
+
+#updates{
+    position: absolute;
+    top: 50px;
+    left: 30px;
+    color: white;
+    z-index: 10;
 }

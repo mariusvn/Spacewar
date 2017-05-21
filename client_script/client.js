@@ -27,7 +27,6 @@ var control = {
 
 renderer.render(stage);
 
-requestAnimationFrame(update); //uncomment to enable update loop
 
 vesselList = [];
 bulletList = [];
@@ -149,14 +148,13 @@ class enemy extends vessel{
     }
     constructor(x,y,color,weight){
         super(x,y,color,weight);
-        function tempFire() {
-            setTimeout(function () {
-                console.log("fire !");
-                new bullet(this.x, this.y, this.rotation);
-                tempFire();
-            }, 3000);
-        }
+        var self = this;
+        setInterval(function () {
+            self.fire();
+        }, 1000);
     }
+
+
 }
 
 var ply = new player(600, 500, 0xFFFFFF, 1);
@@ -195,37 +193,43 @@ function onKeyUp(e) {
     }
 }
 
-function moveLoop(){
+function fpsLoop(){
     setTimeout(function(){
-        for(var i = 0; i < vesselList.length; i++){
-            vesselList[i].update();
-        }
-        for(var i = 0; i < bulletList.length; i++){
-            bulletList[i].update();
-        }
-        if(control.top){
-            ply.y = ply.y - 3;
-        }
-        if(control.down){
-            ply.y = ply.y + 3;
-        }
-        if(control.left){
-            ply.x = ply.x - 3;
-        }
-        if(control.right){
-            ply.x = ply.x + 3;
-        }
-        ennemy.rotateToPlayer();
-        ennemy.moveForward(1.5);
-        moveLoop();
-    },13);
+        //$("#fps span").html(Math.round(60/(fps)) + "");
+        $("#fps span").html(Math.round(ticker.FPS * 10)/10 + "");
+        fpsLoop();
+    },100);
 }
 
-moveLoop();
+
+var ticker = new PIXI.ticker.Ticker();
+ticker.add(update, this);
+ticker.start();
+
+fpsLoop();
 function update(){
     mousePos.x = renderer.plugins.interaction.mouse.global.x;
     mousePos.y = renderer.plugins.interaction.mouse.global.y;
-
+    for(var i = 0; i < vesselList.length; i++){
+        vesselList[i].update();
+    }
+    for(var i = 0; i < bulletList.length; i++){
+        bulletList[i].update();
+    }
+    if(control.top){
+        ply.y = ply.y - 3;
+    }
+    if(control.down){
+        ply.y = ply.y + 3;
+    }
+    if(control.left){
+        ply.x = ply.x - 3;
+    }
+    if(control.right){
+        ply.x = ply.x + 3;
+    }
+    ennemy.rotateToPlayer();
+    ennemy.moveForward(1.5);
     renderer.render(stage);
-    requestAnimationFrame(update);
+    //requestAnimationFrame(update);
 }
