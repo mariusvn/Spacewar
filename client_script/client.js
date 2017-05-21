@@ -192,7 +192,11 @@ function onKeyUp(e) {
     }
 }
 
-setTimeout(function () {
+
+
+function update(){
+    mousePos.x = renderer.plugins.interaction.mouse.global.x;
+    mousePos.y = renderer.plugins.interaction.mouse.global.y;
     for(var i = 0; i < vesselList.length; i++){
         vesselList[i].update();
     }
@@ -214,12 +218,6 @@ setTimeout(function () {
 
     ennemy.moveForward(1.5);
     ennemy.rotateToPlayer();
-},1);
-
-function update(){
-    mousePos.x = renderer.plugins.interaction.mouse.global.x;
-    mousePos.y = renderer.plugins.interaction.mouse.global.y;
-
 
     renderer.render(stage);
     requestAnimationFrame(update);
