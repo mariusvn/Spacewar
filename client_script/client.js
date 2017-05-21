@@ -192,9 +192,7 @@ function onKeyUp(e) {
     }
 }
 
-function update(){
-    mousePos.x = renderer.plugins.interaction.mouse.global.x;
-    mousePos.y = renderer.plugins.interaction.mouse.global.y;
+setTimeout(function () {
     for(var i = 0; i < vesselList.length; i++){
         vesselList[i].update();
     }
@@ -213,8 +211,16 @@ function update(){
     if(control.right){
         ply.x = ply.x + 3;
     }
-    ennemy.rotateToPlayer();
+
     ennemy.moveForward(1.5);
+    ennemy.rotateToPlayer();
+},1);
+
+function update(){
+    mousePos.x = renderer.plugins.interaction.mouse.global.x;
+    mousePos.y = renderer.plugins.interaction.mouse.global.y;
+
+
     renderer.render(stage);
     requestAnimationFrame(update);
 }
