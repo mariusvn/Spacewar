@@ -149,10 +149,13 @@ class enemy extends vessel{
     }
     constructor(x,y,color,weight){
         super(x,y,color,weight);
-        setTimeout(function () {
-            console.log("fire !");
-            new bullet(this.x, this.y, this.rotation);
-        }, 3000);
+        function tempFire() {
+            setTimeout(function () {
+                console.log("fire !");
+                new bullet(this.x, this.y, this.rotation);
+                tempFire();
+            }, 3000);
+        }
     }
 }
 
@@ -192,32 +195,36 @@ function onKeyUp(e) {
     }
 }
 
+function moveLoop(){
+    setTimeout(function(){
+        for(var i = 0; i < vesselList.length; i++){
+            vesselList[i].update();
+        }
+        for(var i = 0; i < bulletList.length; i++){
+            bulletList[i].update();
+        }
+        if(control.top){
+            ply.y = ply.y - 3;
+        }
+        if(control.down){
+            ply.y = ply.y + 3;
+        }
+        if(control.left){
+            ply.x = ply.x - 3;
+        }
+        if(control.right){
+            ply.x = ply.x + 3;
+        }
+        ennemy.rotateToPlayer();
+        ennemy.moveForward(1.5);
+        moveLoop();
+    },13);
+}
 
-
+moveLoop();
 function update(){
     mousePos.x = renderer.plugins.interaction.mouse.global.x;
     mousePos.y = renderer.plugins.interaction.mouse.global.y;
-    for(var i = 0; i < vesselList.length; i++){
-        vesselList[i].update();
-    }
-    for(var i = 0; i < bulletList.length; i++){
-        bulletList[i].update();
-    }
-    if(control.top){
-        ply.y = ply.y - 3;
-    }
-    if(control.down){
-        ply.y = ply.y + 3;
-    }
-    if(control.left){
-        ply.x = ply.x - 3;
-    }
-    if(control.right){
-        ply.x = ply.x + 3;
-    }
-
-    ennemy.moveForward(1.5);
-    ennemy.rotateToPlayer();
 
     renderer.render(stage);
     requestAnimationFrame(update);
