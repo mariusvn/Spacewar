@@ -149,7 +149,7 @@ class enemy extends vessel{
     constructor(x,y,color,weight){
         super(x,y,color,weight);
         var self = this;
-        setInterval(function () {
+        setInterval(function () {dzsqs
             self.fire();
         }, 1000);
     }
@@ -207,7 +207,7 @@ ticker.add(update, this);
 ticker.start();
 
 fpsLoop();
-function update(){
+function update(deltatime){
     mousePos.x = renderer.plugins.interaction.mouse.global.x;
     mousePos.y = renderer.plugins.interaction.mouse.global.y;
     for(var i = 0; i < vesselList.length; i++){
@@ -217,19 +217,19 @@ function update(){
         bulletList[i].update();
     }
     if(control.top){
-        ply.y = ply.y - 3;
+        ply.y = ply.y - (3 * deltatime);
     }
     if(control.down){
-        ply.y = ply.y + 3;
+        ply.y = ply.y + (3 * deltatime);
     }
     if(control.left){
-        ply.x = ply.x - 3;
+        ply.x = ply.x - (3 * deltatime);
     }
     if(control.right){
-        ply.x = ply.x + 3;
+        ply.x = ply.x + (3 * deltatime);
     }
     ennemy.rotateToPlayer();
-    ennemy.moveForward(1.5);
+    ennemy.moveForward((1.5 * deltatime));
     renderer.render(stage);
     //requestAnimationFrame(update);
 }
