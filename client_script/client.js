@@ -32,7 +32,7 @@ vesselList = [];
 bulletList = [];
 
 class bullet{
-    constructor(x,y,rotation){
+    constructor(x,y,rotation, owner){
         this.container = new PIXI.Container();
         this.bullet = new PIXI.Graphics();
         this.container.addChild(this.bullet);
@@ -43,21 +43,59 @@ class bullet{
         this.bullet.moveTo(0,0);
         this.bullet.lineTo(0,2);
         this.inc = 0;
+        this.owner = owner;
         bulletList.push(this);
         stage.addChild(this.container);
+        this.goneOut = false;
+        this.timeout = setTimeout(function (self) {
+            self.remove();
+        }, 3000, this);
     }
 
-    update(){
-        this.inc++;
+    remove(){
+        clearTimeout(this.timeout);
         this.bullet.clear();
-        if(this.inc == 150){
-            var index = bulletList.indexOf(this);
-            bulletList.splice(index, 1);
-        }else {
-            this.bullet.lineStyle(1, 0xFFFFFF, 1);
-            this.bullet.moveTo(0, this.inc * 2);
-            this.bullet.lineTo(0, this.inc * 2 + 10);
+        var index = bulletList.indexOf(this);
+        bulletList.splice(index, 1);
+    }
+
+    update(deltatime){
+        this.inc = this.inc + 2 * deltatime;
+        this.bullet.clear();
+        this.bullet.lineStyle(1, 0xFFFFFF, 1);
+        this.bullet.moveTo(0, this.inc);
+        this.bullet.lineTo(0, this.inc + 10);
+        var out = false;
+        //collision detection
+        var bounds = this.bullet.getBounds();
+        if(this.goneOut) {
+            for (var i = 0; i < vesselList.length; i++) {
+                var vesselBounds = vesselList[i].bounds;
+                if (bounds.x > vesselBounds.x && bounds.x < vesselBounds.x + vesselBounds.width) {
+                    if (bounds.y > vesselBounds.y && bounds.y < vesselBounds.y + vesselBounds.height) {
+                        if (this.goneOut) {
+                            this.onHit(vesselList[i]);
+                        }
+                    }
+                }
+            }
+        }else{
+            var vesselBounds = this.owner.bounds;
+            if (bounds.x < vesselBounds.x || bounds.x > vesselBounds.x + vesselBounds.width) {
+                if (bounds.y < vesselBounds.y || bounds.y > vesselBounds.y + vesselBounds.height) {
+                    out = true
+                }
+            }
+            if(out && !this.goneOut){
+                this.goneOut = true;
+            }
         }
+    }
+
+    onHit(hitter){
+        console.log('hit');
+        this.remove();
+        hitter.died();
     }
 }
 
@@ -72,37 +110,43 @@ class vessel {
         this.container = new PIXI.Container();
         this.container.x = x;
         this.container.y = y;
-        this.lines = [];
         this.rotation = 0;
 
-        var line0 = new PIXI.Graphics();
-        line0.lineStyle(weight, color, 1);
-        line0.moveTo(-15, -10);
-        line0.lineTo(15, -10);
-        this.lines.push(line0);
-        this.container.addChild(line0);
-
-        var line1 = new PIXI.Graphics();
-        line1.lineStyle(weight, color, 1);
-        line1.moveTo(-15, -10);
-        line1.lineTo(0, 30);
-        this.lines.push(line1);
-        this.container.addChild(line1);
-
-        var line2 = new PIXI.Graphics();
-        line2.lineStyle(weight, color, 1);
-        line2.moveTo(15, -10);
-        line2.lineTo(0, 30);
-        this.lines.push(line2);
-        this.container.addChild(line2);
+        this.line = new PIXI.Graphics();
+        this.line.lineStyle(weight, color, 1);
+        this.line.moveTo(-15, -10);
+        this.line.lineTo(15, -10);
+        this.line.moveTo(-15, -10);
+        this.line.lineTo(0, 30);
+        this.line.moveTo(15, -10);
+        this.line.lineTo(0, 30);
+        this.container.addChild(this.line);
 
         vesselList.push(this);
         stage.addChild(this.container);
+
+        this.bounds = this.line.getBounds();
+        this.boundsGraphic = new PIXI.Graphics();
+
+        stage.addChild(this.boundsGraphic);
     }
 
-    update(){
+    update(deltaTime){
         this.container.x = this.x;
         this.container.y = this.y;
+
+        this.bounds = this.line.getBounds();
+        /*this.boundsGraphic.clear();
+        this.boundsGraphic.lineStyle(1, 0xFFFFFF, 1);*/
+
+        /*this.boundsGraphic.moveTo(this.bounds.x + this.bounds.width, this.bounds.y + this.bounds.height);
+        this.boundsGraphic.lineTo(this.bounds.x, this.bounds.y + this.bounds.height);
+        this.boundsGraphic.moveTo(this.bounds.x, this.bounds.y + this.bounds.height);
+        this.boundsGraphic.lineTo(this.bounds.x, this.bounds.y);
+        this.boundsGraphic.moveTo(this.bounds.x, this.bounds.y);
+        this.boundsGraphic.lineTo(this.bounds.x + this.bounds.width, this.bounds.y);
+        this.boundsGraphic.moveTo(this.bounds.x + this.bounds.width, this.bounds.y);
+        this.boundsGraphic.lineTo(this.bounds.x + this.bounds.width, this.bounds.y + this.bounds.height);*/
     }
 
     rotate(rotation){
@@ -110,8 +154,13 @@ class vessel {
         this.rotation = rotation;
     }
     fire(){
-        var bul = new bullet(this.x, this.y, this.rotation);
+        new bullet(this.x, this.y, this.rotation, this);
     }
+    died(){
+        var index = vesselList.indexOf(this);
+        vesselList.splice(index, 1);
+    }
+
 
 }
 
@@ -149,11 +198,19 @@ class enemy extends vessel{
     constructor(x,y,color,weight){
         super(x,y,color,weight);
         var self = this;
-        setInterval(function () {dzsqs
+        this.fireUpdate = setInterval(function () {
             self.fire();
         }, 1000);
     }
-
+    update(deltaTime){
+        super.update(deltaTime);
+        this.rotateToPlayer();
+        this.moveForward((1.5 * deltaTime));
+    }
+    died(){
+        super.died();
+        clearTimeout(this.fireUpdate);
+    }
 
 }
 
@@ -195,7 +252,6 @@ function onKeyUp(e) {
 
 function fpsLoop(){
     setTimeout(function(){
-        //$("#fps span").html(Math.round(60/(fps)) + "");
         $("#fps span").html(Math.round(ticker.FPS * 10)/10 + "");
         fpsLoop();
     },100);
@@ -211,10 +267,10 @@ function update(deltatime){
     mousePos.x = renderer.plugins.interaction.mouse.global.x;
     mousePos.y = renderer.plugins.interaction.mouse.global.y;
     for(var i = 0; i < vesselList.length; i++){
-        vesselList[i].update();
+        vesselList[i].update(deltatime);
     }
     for(var i = 0; i < bulletList.length; i++){
-        bulletList[i].update();
+        bulletList[i].update(deltatime);
     }
     if(control.top){
         ply.y = ply.y - (3 * deltatime);
@@ -228,8 +284,7 @@ function update(deltatime){
     if(control.right){
         ply.x = ply.x + (3 * deltatime);
     }
-    ennemy.rotateToPlayer();
-    ennemy.moveForward((1.5 * deltatime));
+
     renderer.render(stage);
     //requestAnimationFrame(update);
 }
