@@ -27,6 +27,9 @@ var control = {
 
 renderer.render(stage);
 
+var ticker = new PIXI.ticker.Ticker();
+ticker.add(update, this);
+ticker.start();
 
 vesselList = [];
 bulletList = [];
@@ -159,6 +162,7 @@ class vessel {
     died(){
         var index = vesselList.indexOf(this);
         vesselList.splice(index, 1);
+        stage.removeChild(this.container);
     }
 
 
@@ -177,6 +181,19 @@ class player extends vessel{
         this.rotate(rot);
         playerPos.x = this.x;
         playerPos.y = this.y;
+    }
+
+    died(){
+        super.died();
+        ticker.stop();
+        var text = new PIXI.Text('YOU LOSE', {fontFamily:'Arial', fontSize:72, fill: 0xFFFFFF, align: 'center'});
+        text.x = (window.innerWidth - text.width) / 2;
+        text.y = (window.innerHeight - text.height) / 2;
+        var text2 = new PIXI.Text('Refresh to replay', {fontFamily:'Arial', fontSize:22, fill: 0xFFFFFF, align: 'center'});
+        text2.x = (window.innerWidth - text2.width) / 2;
+        text2.y = (window.innerHeight - text2.height) / 2 + text.height;
+        stage.addChild(text);
+        stage.addChild(text2);
     }
 }
 
@@ -262,9 +279,7 @@ function fpsLoop(){
 }
 
 
-var ticker = new PIXI.ticker.Ticker();
-ticker.add(update, this);
-ticker.start();
+
 
 fpsLoop();
 function update(deltatime){
