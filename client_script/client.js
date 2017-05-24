@@ -215,7 +215,11 @@ class enemy extends vessel{
 }
 
 var ply = new player(600, 500, 0xFFFFFF, 1);
-var ennemy = new enemy(200, 300, 0xFFFF00, 1);
+setInterval(function () {
+    console.log("UPDATE");
+
+    var ennemy = new enemy(Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0xFFFF00, 1);
+}, 1000);
 
 renderer.render(stage);
 
