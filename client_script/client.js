@@ -1,5 +1,8 @@
 renderer = PIXI.autoDetectRenderer(256, 256, {antialias: true, transparent: false, resolution: 2});
 
+console.log("Welcome to Spacewar v0.3");
+console.log("By Marius 'DrGEEK' Van Nieuwenhuyse");
+
 document.body.appendChild(renderer.view);
 renderer.view.style.position = "absolute";
 renderer.view.style.display = "block";
@@ -236,6 +239,8 @@ class enemy extends vessel{
 }
 
 var ply = new player(600, 500, 0xFFFFFF, 1);
+
+//TODO: spawner not active when tab not focused
 var spawnFrq = 1500;
 function spawner() {
     spawnFrq = spawnFrq - 5;
