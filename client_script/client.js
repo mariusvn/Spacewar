@@ -25,6 +25,17 @@ var control = {
     right: false
 };
 
+var deadCountIntro = new PIXI.Text("Kills: ", {fontFamily:'Arial', fontSize:22, fill: 0xFFFFFF, align: 'center'});
+deadCountIntro.x = 30;
+deadCountIntro.y = 30;
+var deadCount = new PIXI.Text("0", {fontFamily:'Arial', fontSize:22, fill: 0xFFFFFF, align: 'center'});
+deadCount.y = 30;
+deadCount.x = 30 + deadCountIntro.width;
+var deadCountInt = 0;
+
+stage.addChild(deadCountIntro);
+stage.addChild(deadCount);
+
 renderer.render(stage);
 
 var ticker = new PIXI.ticker.Ticker();
@@ -63,7 +74,7 @@ class bullet{
     }
 
     update(deltatime){
-        this.inc = this.inc + 2 * deltatime;
+        this.inc = this.inc + 4 * deltatime;
         this.bullet.clear();
         this.bullet.lineStyle(1, 0xFFFFFF, 1);
         this.bullet.moveTo(0, this.inc);
@@ -96,7 +107,6 @@ class bullet{
     }
 
     onHit(hitter){
-        console.log('hit');
         this.remove();
         hitter.died();
     }
@@ -139,17 +149,6 @@ class vessel {
         this.container.y = this.y;
 
         this.bounds = this.line.getBounds();
-        /*this.boundsGraphic.clear();
-        this.boundsGraphic.lineStyle(1, 0xFFFFFF, 1);*/
-
-        /*this.boundsGraphic.moveTo(this.bounds.x + this.bounds.width, this.bounds.y + this.bounds.height);
-        this.boundsGraphic.lineTo(this.bounds.x, this.bounds.y + this.bounds.height);
-        this.boundsGraphic.moveTo(this.bounds.x, this.bounds.y + this.bounds.height);
-        this.boundsGraphic.lineTo(this.bounds.x, this.bounds.y);
-        this.boundsGraphic.moveTo(this.bounds.x, this.bounds.y);
-        this.boundsGraphic.lineTo(this.bounds.x + this.bounds.width, this.bounds.y);
-        this.boundsGraphic.moveTo(this.bounds.x + this.bounds.width, this.bounds.y);
-        this.boundsGraphic.lineTo(this.bounds.x + this.bounds.width, this.bounds.y + this.bounds.height);*/
     }
 
     rotate(rotation){
@@ -227,16 +226,25 @@ class enemy extends vessel{
     died(){
         super.died();
         clearTimeout(this.fireUpdate);
+        deadCountInt++;
+        deadCount.text = deadCountInt.toString();
     }
 
 }
 
 var ply = new player(600, 500, 0xFFFFFF, 1);
-setInterval(function () {
-    console.log("UPDATE");
-
-    var ennemy = new enemy(Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0xFFFF00, 1);
-}, 1000);
+var spawnFrq = 1500;
+function spawner() {
+    spawnFrq = spawnFrq - 50;
+    if(spawnFrq < 2){
+        spawnFrq = 2;
+    }
+    setTimeout(function () {
+        var ennemy = new enemy(Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0xFFFF00, 1);
+        spawner();
+    }, spawnFrq);
+}
+spawner();
 
 renderer.render(stage);
 
@@ -271,17 +279,6 @@ function onKeyUp(e) {
     }
 }
 
-function fpsLoop(){
-    setTimeout(function(){
-        $("#fps span").html(Math.round(ticker.FPS * 10)/10 + "");
-        fpsLoop();
-    },100);
-}
-
-
-
-
-fpsLoop();
 function update(deltatime){
     mousePos.x = renderer.plugins.interaction.mouse.global.x;
     mousePos.y = renderer.plugins.interaction.mouse.global.y;
