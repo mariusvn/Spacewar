@@ -1,0 +1,8 @@
+{
+  "name": "server_script",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "latest",
+    "socket.io": "latest"
+  }
+}
