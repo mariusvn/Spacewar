@@ -264,25 +264,25 @@ document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
 function onKeyDown(e) {
-    if(e.key == 'z'){
+    if(e.key === 'z'){
         control.top = true;
-    }else if(e.key == 's'){
+    }else if(e.key === 's'){
         control.down = true;
-    }else if(e.key == 'q'){
+    }else if(e.key === 'q'){
         control.left = true;
-    }else if(e.key == 'd'){
+    }else if(e.key === 'd'){
         control.right = true;
     }
 }
 
 function onKeyUp(e) {
-    if(e.key == 'z'){
+    if(e.key === 'z'){
         control.top = false;
-    }else if(e.key == 's'){
+    }else if(e.key === 's'){
         control.down = false;
-    }else if(e.key == 'q'){
+    }else if(e.key === 'q'){
         control.left = false;
-    }else if(e.key == 'd'){
+    }else if(e.key === 'd'){
         control.right = false;
     }
 }
