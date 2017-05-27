@@ -1,6 +1,6 @@
 renderer = PIXI.autoDetectRenderer(256, 256, {antialias: true, transparent: false, resolution: 2});
 
-console.log("Welcome to Spacewar v0.3");
+console.log('Welcome to Spacewar v0.5');
 console.log("By Marius 'DrGEEK' Van Nieuwenhuyse");
 
 document.body.appendChild(renderer.view);
@@ -238,15 +238,12 @@ class enemy extends vessel{
 
 }
 
-var ply = new player(600, 500, 0xFFFFFF, 1);
+var ply = new player(0, 0, 0xFFFFFF, 1);
 
 
 
 renderer.render(stage);
 
-document.getElementsByTagName("CANVAS")[0].onclick = function(){
-    ply.fire();
-};
 
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
